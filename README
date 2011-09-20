@@ -1,0 +1,10 @@
+This plugin attempts to implement the OAuth functionality for Symfony 1.4 using PECL OAuth extension. 
+
+This is work in progress, for now please use the sfMelodyPlugin.
+
+Requirements:
+- PHP 5.3.2+
+- Pecl OAuth extension
+ - http://uk3.php.net/manual/en/book.oauth.php
+ - http://pecl.php.net/package/oauth
+
