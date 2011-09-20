@@ -1,0 +1,10 @@
+Token:
+  columns:
+    name:   { type: string(127) }
+    oauth_token: { type: string(255) }
+    oauth_token_secret: { type: string(255) }
+    sf_guard_user_id: { type: integer }
+  relations:
+    User:
+      class: sfGuardUser
+      onDelete: CASCADE

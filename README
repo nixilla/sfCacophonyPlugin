@@ -7,4 +7,6 @@ Requirements:
 - Pecl OAuth extension
  - http://uk3.php.net/manual/en/book.oauth.php
  - http://pecl.php.net/package/oauth
+- sfGuardPlugin
+
 
