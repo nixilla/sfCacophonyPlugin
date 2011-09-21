@@ -21,10 +21,16 @@ class BasesfCacophonyConsumerActions extends sfActions
     $config = sfConfig::get('app_cacophony');
     $this->forward404Unless(in_array($request->getParameter('provider'), array_keys($config['providers'])));
     
-    $result = $this->getUser()->connect($request->getParameter('provider'));
-    
-    if($this->getUser()->getAttribute('oauth_secret'))
+    if($this->getUser()->isAuthenticated()) // && $this->hasTokenFor($provider))
     {
+      sfCacophonyOAuth::refreshToken($this->getUser()->getGuardUser(),$provider);
+      $this->redirect( $config['providers'][$request->getParameter('provider')]['redirect_to'] ?: '@homepage' );
+    }
+    else
+    {
+      $result = sfCacophonyOAuth::getRequestToken($request->getParameter('provider'));
+      // @todo need to check if($result)
+      $this->getUser()->setAttribute('oauth_token_secret',$result['oauth_token_secret']);
       $this->redirect(
         sprintf(
           '%s?%s',
@@ -33,12 +39,32 @@ class BasesfCacophonyConsumerActions extends sfActions
         )
       );
     }
-    else $this->redirect( $config['providers'][$request->getParameter('provider')]['redirect_to'] ?: '@homepage' );
   }
   
-  
+  /**
+   * Processes th callback from OAuth provider
+   * 
+   * @param sfRequest $request 
+   */
   public function executeCallback($request)
   {
+    $this->forward404Unless($request->getParameter('provider'));
     
+    $config = sfConfig::get('app_cacophony');
+    $this->forward404Unless(in_array($request->getParameter('provider'), array_keys($config['providers'])));
+    
+    if( ! $this->getUser()->isAuthenticated())
+    {
+      $result = sfCacophonyOAuth::getAccessToken(
+        $request->getParameter('provider'),
+        $request->getParameter('oauth_token'),
+        $this->getUser()->getAttribute('oauth_token_secret'),
+        $request->getParameter('oauth_verifier')
+      );
+      $this->getUser()->setAttribute('accessToken', $result);
+    }
+    
+    // @todo This needs to be configurable
+    $this->forward('sfGuardRegister', 'index');
   }
 }

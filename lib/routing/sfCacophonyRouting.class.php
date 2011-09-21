@@ -16,11 +16,11 @@ class sfCacophonyRouting
    * @static
    */
     
-  static public function addRouteForConsumer(sfEvent $event)
+  static public function addRoutesForConsumer(sfEvent $event)
   {
     $r = $event->getSubject();
-    $r->prependRoute('sf_cacophony_connect', new sfRoute('/oauth/connect/:provider', array('module' => 'sfCacophonyConsumer', 'action' => 'connect'))); 
-    $r->prependRoute('sf_cacophony_callback', new sfRoute('/oauth/callback', array('module' => 'sfCacophonyConsumer', 'action' => 'callback'))); 
+    $r->prependRoute('sf_cacophony_connect', new sfRoute('/oauth/connect/:provider', array('module' => 'sfCacophonyConsumer', 'action' => 'connect')));
+    $r->prependRoute('sf_cacophony_callback', new sfRoute('/oauth/callback/:provider', array('module' => 'sfCacophonyConsumer', 'action' => 'callback')));
   }
   
   /**
@@ -31,7 +31,7 @@ class sfCacophonyRouting
    * @todo
    * 
    */
-  static public function addRouteForProvider(sfEvent $event)
+  static public function addRoutesForProvider(sfEvent $event)
   {
     $r = $event->getSubject();
   }

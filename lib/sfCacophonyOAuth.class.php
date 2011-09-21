@@ -19,27 +19,73 @@ class sfCacophonyOAuth
    * @param String $provider
    * @return Array
    */
-  public static function requestToken($provider)
+  public static function getRequestToken($provider)
   {
     sfApplicationConfiguration::getActive()->loadHelpers(array('Url'));
     
     $config = sfConfig::get('app_cacophony');
-    $oauth = new OAuth(
-      $config['providers'][$provider]['consumer_key'],
-      $config['providers'][$provider]['consumer_secret'],
-      OAUTH_SIG_METHOD_HMACSHA1,
-      OAUTH_AUTH_TYPE_URI
-    );
+    $oauth = self::getInstance($provider);
     
-    return $oauth->getRequestToken(
-      $config['providers'][$provider]['request_token_url'],
-      sfContext::getInstance()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for('@sf_cacophony_callback',true) : 'oob'
-    );
+    try
+    {
+      return $oauth->getRequestToken(
+        $config['providers'][$provider]['request_token_url'],
+        sfContext::getInstance()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for(sprintf('@sf_cacophony_callback?provider=%s',$provider),true) : 'oob'
+      );
+    }
+    catch (OAuthException $e)
+    {
+      if(sfConfig::get('sf_logging_enabled')) sfContext::getInstance()->getLogger()->err($e->lastResponse);
+      return false;
+    }
+  }
+  
+  /**
+   * Calls provider's access token service
+   * and returns whatever it gets from it
+   * 
+   * @param String $provider
+   * @param String $oauth_token
+   * @param String $oauth_token_secret 
+   */
+  public static function getAccessToken($provider,$oauth_token,$oauth_token_secret,$oauth_verifier)
+  {
+    $config = sfConfig::get('app_cacophony');
+    
+    $oauth = self::getInstance($provider);
+    $oauth->setToken($oauth_token,$oauth_token_secret);
+    
+    try
+    {
+      return $oauth->getAccessToken($config['providers'][$provider]['access_token_url'], null, $oauth_verifier);
+    }
+    catch (OAuthException $e)
+    {
+      if(sfConfig::get('sf_logging_enabled')) sfContext::getInstance()->getLogger()->err($e->lastResponse);
+      return false;
+    }
   }
   
   public static function refreshToken(SfGuardUser $user,$provider)
   {
     
   }
+  
+  /**
+   *
+   * @param string $provider
+   * @return OAuth 
+   */
+  public static function getInstance($provider)
+  {
+    if( ! $provider) throw new Exception('Missing provider information');
+    
+    $config = sfConfig::get('app_cacophony');
+    return new OAuth(
+      $config['providers'][$provider]['consumer_key'],
+      $config['providers'][$provider]['consumer_secret'],
+      OAUTH_SIG_METHOD_HMACSHA1,
+      OAUTH_AUTH_TYPE_URI
+    );
+  }
 }
-

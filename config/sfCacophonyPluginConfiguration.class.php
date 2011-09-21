@@ -23,7 +23,7 @@ class sfCacophonyPluginConfiguration extends sfPluginConfiguration
       {
         if (in_array($module, $enabledModules))
         {
-          $this->dispatcher->connect('routing.load_configuration', array('sfCacophonyRouting', 'addRouteFor'.str_replace('sfCacophony', '', $module)));
+          $this->dispatcher->connect('routing.load_configuration', array('sfCacophonyRouting', 'addRoutesFor'.str_replace('sfCacophony', '', $module)));
         }
       }
     }
