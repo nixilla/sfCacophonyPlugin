@@ -1,9 +1,11 @@
 Token:
   columns:
-    name:   { type: string(127) }
+    provider:   { type: string(30) }
     oauth_token: { type: string(255) }
     oauth_token_secret: { type: string(255) }
     sf_guard_user_id: { type: integer }
+    expires_at: { type: timestamp }
+    providers_user_id: { type: string(255) }
   relations:
     User:
       class: sfGuardUser

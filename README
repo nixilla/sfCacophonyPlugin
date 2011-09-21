@@ -1,4 +1,9 @@
-This plugin attempts to implement the OAuth functionality for Symfony 1.4 using PECL OAuth extension. 
+This plugin attempts to implement the OAuth functionality for Symfony 1.4 using PECL OAuth extension.
+
+What's OAuth?
+Please go to links below for best explanation I've ever seen so far.
+- http://developer.yahoo.com/oauth/guide/about.html
+- http://developer.yahoo.com/oauth/guide/oauth-auth-flow.html
 
 This is work in progress, for now please use the sfMelodyPlugin.
 

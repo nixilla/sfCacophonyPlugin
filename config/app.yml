@@ -2,20 +2,23 @@ all:
   
   .settings:
     cacophony:
-      vimeo:
-        request_token_url: http://vimeo.com/oauth/request_token
-        authorize_url: http://vimeo.com/oauth/authorize
-        access_token_url: http://vimeo.com/oauth/access_token
-      twitter:
-        request_token_url: https://api.twitter.com/oauth/request_token
-        authorize_url: https://api.twitter.com/oauth/authorize
-        access_token_url: https://api.twitter.com/oauth/access_token
-      linkedin:
-        request_token_url: https://api.linkedin.com/uas/oauth/requestToken
-        authorize_url: https://www.linkedin.com/uas/oauth/authenticate
-        access_token_url: https://api.linkedin.com/uas/oauth/accessToken
-      yahoo:
-        request_token_url: https://api.login.yahoo.com/oauth/v2/get_request_token
-        authorize_url: https://api.login.yahoo.com/oauth/v2/request_auth
-        access_token_url: https://api.login.yahoo.com/oauth/v2/request_auth
+      plugin:
+        routes_register: true
+      providers:
+        vimeo:
+          request_token_url: http://vimeo.com/oauth/request_token
+          authorize_url: http://vimeo.com/oauth/authorize
+          access_token_url: http://vimeo.com/oauth/access_token
+        twitter:
+          request_token_url: https://api.twitter.com/oauth/request_token
+          authorize_url: https://api.twitter.com/oauth/authorize
+          access_token_url: https://api.twitter.com/oauth/access_token
+        linkedin:
+          request_token_url: https://api.linkedin.com/uas/oauth/requestToken
+          authorize_url: https://www.linkedin.com/uas/oauth/authenticate
+          access_token_url: https://api.linkedin.com/uas/oauth/accessToken
+        yahoo:
+          request_token_url: https://api.login.yahoo.com/oauth/v2/get_request_token
+          authorize_url: https://api.login.yahoo.com/oauth/v2/request_auth
+          access_token_url: https://api.login.yahoo.com/oauth/v2/get_token
       
