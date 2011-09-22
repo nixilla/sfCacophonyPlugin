@@ -55,14 +55,20 @@ class sfCacophonyOAuth
     $oauth = self::getInstance($provider);
     $oauth->setToken($oauth_token,$oauth_token_secret);
     
+    if(sfConfig::get('sf_logging_enabled')) $oauth->enableDebug();
+    
     try
     {
       return $oauth->getAccessToken($config['providers'][$provider]['access_token_url'], null, $oauth_verifier);
     }
     catch (OAuthException $e)
     {
-      if(sfConfig::get('sf_logging_enabled')) sfContext::getInstance()->getLogger()->err($e->lastResponse);
-      return false;
+      if(sfConfig::get('sf_logging_enabled'))
+      {
+        sfContext::getInstance()->getLogger()->err(sprintf('{OAuthException} %s',$e->lastResponse));
+        sfContext::getInstance()->getLogger()->info(sprintf('{OAuthException} %s',print_r($oauth->debugInfo,true)));
+      }
+      throw $e;
     }
   }
   
@@ -86,6 +92,23 @@ class sfCacophonyOAuth
       $config['providers'][$provider]['consumer_secret'],
       OAUTH_SIG_METHOD_HMACSHA1,
       OAUTH_AUTH_TYPE_URI
+    );
+  }
+  
+  /**
+   *
+   * @param String $provider
+   * @param Array $accessToken
+   * @return Array
+   */
+  public static function getMe($provider,$accessToken)
+  {
+    return call_user_func(
+      array(
+        sprintf('sfCacophony%sSound',  ucfirst($provider)),
+        'getMe'),
+      $accessToken,
+      self::getInstance($provider)
     );
   }
 }
