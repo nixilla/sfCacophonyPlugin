@@ -24,5 +24,10 @@ class sfCacophonyTwitterSound
       return $output;
     }
   }
+  
+  public static function call()
+  {
+    throw new Exception('This method has not been created yet - please wait while I\'m stil! working on it');
+  }
 }
 

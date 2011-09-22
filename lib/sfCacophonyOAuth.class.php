@@ -115,10 +115,10 @@ class sfCacophonyOAuth
   /**
    * Proxy method to providers' specific one
    * 
-   * @param String $method
+   * @param String $method - Provider's method to be called
    * @param string $provider
    * @param Array $accessToken
-   * @param Array $params 
+   * @param Array $params  - additional parameters required for Providers methods
    */
   public static function call($method, $provider, $accessToken, $params = array())
   {
