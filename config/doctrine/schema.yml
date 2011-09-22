@@ -10,3 +10,4 @@ Token:
     User:
       class: sfGuardUser
       onDelete: CASCADE
+      foreignAlias: Tokens

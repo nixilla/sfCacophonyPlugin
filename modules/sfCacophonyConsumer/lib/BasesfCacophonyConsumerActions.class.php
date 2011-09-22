@@ -85,23 +85,62 @@ class BasesfCacophonyConsumerActions extends sfActions
    */
   public function executeRegister(sfRequest $request)
   {
+    
+    /**
+     * You might want to get user info from the provider like this
+     */
     $result = sfCacophonyOAuth::getMe(
       $request->getParameter('provider'),
       $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
     );
     
-    $token = new Token();
-    $token->fromArray($result['normalized']);
-    $token->fromArray($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
-    $token->setProvider($request->getParameter('provider'));
+    /**
+     * You might want to check if user exists like this:
+     */
+    $sf_guard_user = Doctrine_Core::getTable('sfGuardUser')->createQuery('u')
+      ->innerJoin('u.Tokens t')
+      ->where('t.providers_user_id = ?',$result['normalized']['providers_user_id'])
+      ->fetchOne();
     
-    $sf_guard_user = new sfGuardUser();
-    $sf_guard_user->fromArray($result['normalized']);
-    $sf_guard_user['Token']->add($token);
-    $sf_guard_user->save();
+    if( ! $sf_guard_user)
+    {
+      /**
+       * If user doesn't exist, you might want to add him/her, like this:
+       */
+      $token = new Token();
+      $token->fromArray($result['normalized']);
+      $token->fromArray($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
+      $token->setProvider($request->getParameter('provider'));
+
+      $sf_guard_user = new sfGuardUser();
+      $sf_guard_user->fromArray($result['normalized']);
+      $sf_guard_user['Tokens']->add($token);
+      $sf_guard_user->save();
+    }
+    else
+    {
+      /**
+       * Or if the user exists, update it's token keys
+       */
+      foreach($sf_guard_user['Tokens'] as $token)
+      {
+        if($token['provider'] == $request->getParameter('provider'))
+        {
+          $token->fromArray($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
+          $token->save();
+          break;
+        }
+      }
+    }
     
+    /**
+     * At the end, you might want to log in user like this:
+     */
     $this->getUser()->signin($sf_guard_user);
     
+    /**
+     * and redirect to homepage, or wherever you want
+     */
     $this->redirect('@homepage');
   }
 }
