@@ -111,4 +111,25 @@ class sfCacophonyOAuth
       self::getInstance($provider)
     );
   }
+  
+  /**
+   * Proxy method to providers' specific one
+   * 
+   * @param String $method
+   * @param string $provider
+   * @param Array $accessToken
+   * @param Array $params 
+   */
+  public static function call($method, $provider, $accessToken, $params = array())
+  {
+    return call_user_func(
+      array(
+        sprintf('sfCacophony%sSound',  ucfirst($provider)),
+        'call'),
+      $method,
+      $accessToken,
+      self::getInstance($provider),
+      $params
+    );
+  }
 }
