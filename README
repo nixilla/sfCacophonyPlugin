@@ -50,3 +50,89 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 ## Usage: ##
 
+## New application example ##
+
+1.     mkdir cacophony
+2.     cd cacophony/
+3.     mkdir -p lib/vendor
+4.     cd lib/vendor/
+5.     svn export http://svn.symfony-project.com/tags/RELEASE_1_4_14 symfony
+6.     cd ../..
+7.     php lib/vendor/symfony/data/bin/symfony generate:project cacophony
+8.     cd plugins/
+9.     svn export http://svn.symfony-project.com/plugins/sfDoctrineGuardPlugin/trunk/ sfDoctrineGuardPlugin
+10.    svn export https://svn.github.com/nixilla/sfCacophonyPlugin.git sfCacophonyPlugin
+11.    cd ../
+12.    vim config/databases.yml 
+13.    vim config/ProjectConfiguration.class.php 
+14.    vim config/doctrine/schema.yml
+15.    ./symfony doctrine:build --all
+16.    ./symfony generate:app frontend
+17.    vim web/frontend_dev.php 
+18.    vim apps/frontend/config/app.yml 
+19.    vim apps/frontend/config/settings.yml
+20.    vim apps/frontend/config/filters.yml
+21.    vim apps/frontend/lib/myUser.class.php
+
+Lines 1 to 11 - we're setting up standard symfony called cacophony with 2 plugins.
+Line 12 - configure your database connection settings
+Line 13 - enable 2 new plugins 
+  $this->enablePlugins('sfDoctrinePlugin','sfDoctrineGuardPlugin','sfCacophonyPlugin');
+Line 14 - modify sfGuardUser model to accept null for emails, as you won't get emails from some OAuth providers (optional)
+    
+    sfGuardUser:
+      columns:
+        email_address:
+          type: string(255)
+          notnull: false
+          unique: true
+
+Line 15 - build models forms and filters
+Line 16 - create frontend app
+Line 17 - remove security check from front controller (optional)
+Line 18 - add your consumer_key and consumer secret
+
+    all:
+      .settings:
+        cacophony:
+          providers:
+            vimeo:
+              consumer_key: YOUR_KEY
+              consumer_secret: YOUR_SECRET
+            twitter:
+              consumer_key: YOUR_ANOTHER_KEY
+              consumer_secret: YOUR_ANOTHER_SECRET
+
+Line 19 - enable modules and add sfGuard config
+
+    enabled_modules:        [default, sfGuardAuth, sfGuardRegister, sfCacophonyConsumer]
+
+    login_module:           sfGuardAuth
+    login_action:           signin
+
+    secure_module:          sfGuardAuth
+    secure_action:          secure
+
+Line 20 - add filter
+
+    rendering: ~
+    security:  ~
+
+    # insert your own filters here
+    callback_redirect:
+      class: sfCacophonyFilter
+
+    cache:     ~
+    execution: ~
+
+Line 21 - change base class for myUser to sfGuardSecurityUser
+  
+    class myUser extends sfGuardSecurityUser
+    {
+    }
+
+Then ./symfony cc and you're good to go
+
+Navigate to http://your.url/frontend_dev.php/oauth/connect/(vimeo|twitter)
+Accept your app
+and check your database (sf_guard_user and token tables)
