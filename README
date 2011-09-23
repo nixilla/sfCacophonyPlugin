@@ -52,7 +52,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 ## New application example ##
 
-### Steps
+### Steps ###
 
 1.     mkdir cacophony
 2.     cd cacophony/
@@ -76,13 +76,17 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 20.    vim apps/frontend/config/filters.yml
 21.    vim apps/frontend/lib/myUser.class.php
 
-### Explanation
+### Explanation ###
 
 * Lines 1 to 11 - we're setting up standard symfony called cacophony with 2 plugins.
 * Line 12 - configure your database connection settings
 * Line 13 - enable 2 new plugins 
+
+    
     $this->enablePlugins('sfDoctrinePlugin','sfDoctrineGuardPlugin','sfCacophonyPlugin');
+
 * Line 14 - modify sfGuardUser model to accept null for emails, as you won't get emails from some OAuth providers (optional)
+    
     
     sfGuardUser:
       columns:
@@ -96,6 +100,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 * Line 17 - remove security check from front controller (optional)
 * Line 18 - add your consumer_key and consumer secret
 
+    
     all:
       .settings:
         cacophony:
@@ -109,6 +114,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 * Line 19 - enable modules and add sfGuard config
 
+    
     enabled_modules:        [default, sfGuardAuth, sfGuardRegister, sfCacophonyConsumer]
 
     login_module:           sfGuardAuth
@@ -119,10 +125,11 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 * Line 20 - add filter
 
+    
     rendering: ~
     security:  ~
 
-    # insert your own filters here
+    // insert your own filters here
     callback_redirect:
       class: sfCacophonyFilter
 
@@ -131,6 +138,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 * Line 21 - change base class for myUser to sfGuardSecurityUser
   
+    
     class myUser extends sfGuardSecurityUser
     {
     }
