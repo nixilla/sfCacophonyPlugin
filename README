@@ -9,46 +9,23 @@ Please go to links below for best explanation I've ever seen so far.
 
 This is work in progress, for now please use the sfMelodyPlugin.
 
-Requirements:
-- PHP 5.3.2+
-- Pecl OAuth extension
- - http://uk3.php.net/manual/en/book.oauth.php
- - http://pecl.php.net/package/oauth
-- sfDoctrineGuardPlugin - for now it doesn't work with Propel, but there are plans to make it work
+## Requirements
+* PHP 5.3.2+
+* Pecl OAuth extension
+ * http://uk3.php.net/manual/en/book.oauth.php
+ * http://pecl.php.net/package/oauth
+* sfDoctrineGuardPlugin - for now it doesn't work with Propel, but there are plans to make it work
 
 For now it supports OAuth 1.0 providers. So for it has been tested with:
-- Vimeo
-- Twitter
+* Vimeo
+* Twitter
 
 but I'm planning to implement all major providers, that is:
-- Yahoo
-- Google
-- LinkedIn
-- MySpace
-- and, of course, Facebook
-
-## Installation: ##
-
-For subversion users:
-
-svn checkout https://svn.github.com/nixilla/sfCacophonyPlugin.git ./plugins/sfCacophonyPlugin
-
-If you're using svn:externals
-
-svn pe svn:externals plugins/
-
-... your other plugins including sfDoctrineGuardPlugin ...
-sfCacophonyPlugin https://svn.github.com/nixilla/sfCacophonyPlugin.git
-
-svn update
-
-For git users:
-
-cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
-
-## Configuration: ##
-
-## Usage: ##
+* Yahoo
+* Google
+* LinkedIn
+* MySpace
+* and, of course, Facebook
 
 ## New application example ##
 
@@ -78,15 +55,15 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 ### Explanation ###
 
-* Lines 1 to 11 - we're setting up standard symfony called cacophony with 2 plugins.
-* Line 12 - configure your database connection settings
-* Line 13 - enable 2 new plugins 
+Lines 1 to 11 - we're setting up standard symfony called cacophony with 2 plugins.
 
-    
+Line 12 - configure your database connection settings
+
+Line 13 - enable 2 new plugins 
+
     $this->enablePlugins('sfDoctrinePlugin','sfDoctrineGuardPlugin','sfCacophonyPlugin');
 
-* Line 14 - modify sfGuardUser model to accept null for emails, as you won't get emails from some OAuth providers (optional)
-    
+Line 14 - modify sfGuardUser model to accept null for emails, as you won't get emails from some OAuth providers (optional)
     
     sfGuardUser:
       columns:
@@ -95,11 +72,13 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
           notnull: false
           unique: true
 
-* Line 15 - build models forms and filters
-* Line 16 - create frontend app
-* Line 17 - remove security check from front controller (optional)
-* Line 18 - add your consumer_key and consumer secret
+Line 15 - build models forms and filters
 
+Line 16 - create frontend app
+
+Line 17 - remove security check from front controller (optional)
+
+Line 18 - add your consumer_key and consumer secret
     
     all:
       .settings:
@@ -112,7 +91,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
               consumer_key: YOUR_ANOTHER_KEY
               consumer_secret: YOUR_ANOTHER_SECRET
 
-* Line 19 - enable modules and add sfGuard config
+Line 19 - enable modules and add sfGuard config
 
     
     enabled_modules:        [default, sfGuardAuth, sfGuardRegister, sfCacophonyConsumer]
@@ -123,7 +102,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
     secure_module:          sfGuardAuth
     secure_action:          secure
 
-* Line 20 - add filter
+Line 20 - add filter
 
     
     rendering: ~
@@ -136,7 +115,7 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
     cache:     ~
     execution: ~
 
-* Line 21 - change base class for myUser to sfGuardSecurityUser
+Line 21 - change base class for myUser to sfGuardSecurityUser
   
     
     class myUser extends sfGuardSecurityUser
@@ -145,6 +124,10 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 Then ./symfony cc and you're good to go
 
-* Navigate to http://your.url/frontend_dev.php/oauth/connect/(vimeo|twitter)
-* Accept your app on your provider's page
-* and check your database (sf_guard_user and token tables)
+Navigate to http://your.url/frontend_dev.php/oauth/connect/(vimeo|twitter)
+
+Accept your app on your provider's page
+
+and check your database (sf_guard_user and token tables)
+
+For more information please check out the wiki on Github.
