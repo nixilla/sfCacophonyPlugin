@@ -55,7 +55,7 @@ but I'm planning to implement all major providers, that is:
 
 ### Explanation ###
 
-Lines 1 to 11 - we're setting up standard symfony called cacophony with 2 plugins.
+Lines 1 to 11 - we're setting up standard symfony application called cacophony with 2 plugins.
 
 Line 12 - configure your database connection settings
 
