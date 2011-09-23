@@ -52,6 +52,8 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 
 ## New application example ##
 
+### Steps
+
 1.     mkdir cacophony
 2.     cd cacophony/
 3.     mkdir -p lib/vendor
@@ -73,6 +75,8 @@ cd plugins && git clone git://github.com/nixilla/sfCacophonyPlugin.git
 19.    vim apps/frontend/config/settings.yml
 20.    vim apps/frontend/config/filters.yml
 21.    vim apps/frontend/lib/myUser.class.php
+
+### Explanation
 
 * Lines 1 to 11 - we're setting up standard symfony called cacophony with 2 plugins.
 * Line 12 - configure your database connection settings
