@@ -1,8 +1,7 @@
 Token:
   columns:
     provider:   { type: string(30) }
-    oauth_token: { type: string(255) }
-    oauth_token_secret: { type: string(255) }
+    content:    { type: array(10000) }
     sf_guard_user_id: { type: integer }
     expires_at: { type: timestamp }
     providers_user_id: { type: string(255) }

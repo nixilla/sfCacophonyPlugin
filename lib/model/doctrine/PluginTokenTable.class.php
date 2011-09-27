@@ -11,6 +11,7 @@
  */
 class PluginTokenTable extends Doctrine_Table
 {
+
   /**
    * Returns an instance of this class.
    *
@@ -19,5 +20,44 @@ class PluginTokenTable extends Doctrine_Table
   public static function getInstance()
   {
     return Doctrine_Core::getTable('PluginToken');
+  }
+  
+  /**
+   * Saves all tokens from session to database
+   * 
+   * @param sfEvent $event 
+   * @return void
+   */
+  public static function saveTokenForUser(sfEvent $event)
+  {
+    foreach($event->getSubject()->getAttributeHolder()->getNamespaces() as $namespace)
+    {
+      if(substr($namespace, 0, 18) == 'sfCacophonyPlugin/')
+      {
+        $t = Doctrine_Core::getTable('Token')->findOneByUserAndProvider($event->getSubject()->getGuardUser(), substr($namespace, 18));
+        
+        if( ! $t) $t = new Token();
+        
+        $t->setContent($event->getSubject()->getAttribute('accessToken',null,$namespace));
+        $t->setProvider(substr($namespace, 18));
+        $t->setUser($event->getSubject()->getGuardUser());
+        $t->save();   
+      }
+    }
+  }
+  
+  /**
+   * Implementation of the dynamic finder
+   * 
+   * @param sfGuardUser $user
+   * @param String $provider
+   * @return Doctrine_Record type 
+   */
+  public function findOneByUserAndProvider(sfGuardUser $user, $provider)
+  {
+    return $this->createQuery()
+      ->where('sf_guard_user_id = ?',$user->getId())
+      ->andWhere('provider = ?',$provider)
+      ->fetchOne();
   }
 }
