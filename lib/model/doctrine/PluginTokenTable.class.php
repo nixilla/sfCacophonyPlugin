@@ -61,4 +61,21 @@ class PluginTokenTable extends Doctrine_Table
       ->andWhere('provider = ?',$provider)
       ->fetchOne();
   }
+  
+  /**
+   *
+   * @param type $id
+   * @param type $provider
+   * @return sfGuardUser
+   */
+  public function getUserByProvidersUserIdAndProvider($id,$provider)
+  {
+    $token = $this->createQuery('t')
+      ->innerJoin('t.User u')
+      ->where('t.providers_user_id = ?',$id)
+      ->andWhere('t.provider = ?',$provider)
+      ->fetchOne();
+    
+    return $token['User'];
+  }
 }
