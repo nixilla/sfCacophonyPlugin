@@ -68,6 +68,14 @@ class BasesfCacophonyConsumerActions extends sfActions
         );
 
         $this->getUser()->getAttributeHolder()->remove('requestToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+        
+        // add me to session
+        $me = sfCacophonyOAuth::getMe(
+            $request->getParameter('provider'),
+            $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+          );
+        
+        $this->getUser()->setAttribute('me',$me['normalized'],sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
       }
     }
     else $this->redirect('@homepage');
