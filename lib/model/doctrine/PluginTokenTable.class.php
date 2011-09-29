@@ -38,7 +38,8 @@ class PluginTokenTable extends Doctrine_Table
         
         if( ! $t) $t = new Token();
         
-        $t->synchronizeWithArray($event->getSubject()->getAttribute('me',null,$namespace));
+        $me = $event->getSubject()->getAttribute('me',null,$namespace);
+        $t->setProvidersUserId($me['providers_user_id']);
         $t->setContent($event->getSubject()->getAttribute('accessToken',null,$namespace));
         $t->setProvider(substr($namespace, 18));
         $t->setUser($event->getSubject()->getGuardUser());
