@@ -120,7 +120,7 @@ class sfCacophonyOAuth
    * @param Array $accessToken
    * @param Array $params  - additional parameters required for Providers methods
    */
-  public static function call($method, $provider, $accessToken, $params = array())
+  public static function call($method, $provider, $accessToken = null, $params = array())
   {
     return call_user_func(
       array(

@@ -38,9 +38,9 @@ class sfCacophonyVimeoSound
    * @param Array $params - additional parameters required for Vimeo method
    * @return String Json string
    */
-  public static function call($method, $accessToken, OAuth $oauth, $params = array())
+  public static function call($method, $accessToken = null, OAuth $oauth, $params = array())
   {
-    $oauth->setToken($accessToken['oauth_token'],$accessToken['oauth_token_secret']);
+    if($accessToken) $oauth->setToken($accessToken['oauth_token'],$accessToken['oauth_token_secret']);
     
     $resource = sprintf('%s?method=%s&format=json','http://vimeo.com/api/rest/v2/',$method);
     
