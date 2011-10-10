@@ -18,6 +18,10 @@ class BasesfCacophonyConsumerActions extends sfActions
   {
     $this->forward404Unless($request->getParameter('provider'));
     
+    // facebook uses OAuth 2.0
+    if($request->getParameter('provider') == 'facebook')
+      $this->forward($request->getParameter('module'), 'facebook');
+    
     $config = sfConfig::get('app_cacophony');
     $this->forward404Unless(in_array($request->getParameter('provider'), array_keys($config['providers'])));
     
@@ -39,13 +43,16 @@ class BasesfCacophonyConsumerActions extends sfActions
   }
   
   /**
-   * Processes th callback from OAuth provider
+   * Processes the callback from OAuth provider
    * 
    * @param sfRequest $request 
    */
   public function executeCallback(sfRequest $request)
   {
     $this->forward404Unless($request->getParameter('provider'));
+    
+    if($request->getParameter('provider') == 'facebook')
+      $this->forward($request->getParameter('module'), 'facebookcallback');
     
     $config = sfConfig::get('app_cacophony');
     $this->forward404Unless(in_array($request->getParameter('provider'), array_keys($config['providers'])));
@@ -150,5 +157,57 @@ class BasesfCacophonyConsumerActions extends sfActions
      * and redirect to homepage, or wherever you want
      */
     $this->redirect('@homepage');
+  }
+  
+  
+  public function executeFacebook(sfWebRequest $request)
+  {
+    $this->getUser()->setAttribute('state', md5(uniqid(rand(), true)) , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+    
+    $config = sfConfig::get('app_cacophony');
+    
+    $this->getContext()->getConfiguration()->loadHelpers('Url');
+    
+    $this->redirect(
+      sprintf(
+        '%s?%s',
+        $config['providers'][$request->getParameter('provider')]['authorize_url'],
+        http_build_query(
+          array(
+            'client_id'     => $config['providers'][$request->getParameter('provider')]['consumer_key'],
+            'redirect_uri'  => $this->getContext()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for(sprintf('@sf_cacophony_callback?provider=%s',$request->getParameter('provider')),true) : 'oob',
+            'state'         => $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+          )
+        )
+      )
+    );
+  }
+  
+  public function executeFacebookcallback(sfWebRequest $request)
+  {
+    // CSFR protection as adviced on the 
+    // http://developers.facebook.com/docs/authentication/
+    if($request->getParameter('state') != $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))))
+      throw new Exception('CSRF attack detected');
+    
+    if( ! $this->getUser()->isAuthenticated())
+    {
+      $this->getUser()->setAttribute(
+        'accessToken',
+        sfCacophonyOAuth::getFacebookToken($request->getParameter('code')),
+        'sfCacophonyPlugin/facebook'
+      );
+      
+      // add me to session
+      $me = sfCacophonyOAuth::getMe(
+        $request->getParameter('provider'),
+        $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+      );
+
+      $this->getUser()->setAttribute('me',$me['normalized'],sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+    }
+    else $this->redirect('@homepage');
+    
+    return sfView::NONE;
   }
 }

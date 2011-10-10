@@ -132,4 +132,28 @@ class sfCacophonyOAuth
       $params
     );
   }
+  
+  public static function getFacebookToken($code)
+  {
+    $config = sfConfig::get('app_cacophony');
+    
+    sfApplicationConfiguration::getActive()->loadHelpers(array('Url'));
+    
+    $token_url = sprintf('%s?%s',
+      $config['providers']['facebook']['access_token_url'],
+      http_build_query(array(
+        'client_id'     => $config['providers']['facebook']['consumer_key'],
+        'redirect_uri'  => sfContext::getInstance()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for('@sf_cacophony_callback?provider=facebook',true) : 'oob',
+        'client_secret' => $config['providers']['facebook']['consumer_secret'],
+        'code'          => $code
+      ))
+    );
+    
+    $response = file_get_contents($token_url); 
+    $params = null;
+    parse_str($response, $params);
+    $params['expires_at'] = time() + ($params['expires'] ?: 0);
+    
+    return $params;
+  }
 }
