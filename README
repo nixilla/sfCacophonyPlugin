@@ -4,32 +4,26 @@ This plugin implements the OAuth functionality for Symfony 1.4 using PECL OAuth 
 
 What's OAuth?
 Please go to links below for best explanation I've ever seen so far.
-- http://developer.yahoo.com/oauth/guide/about.html
-- http://developer.yahoo.com/oauth/guide/oauth-auth-flow.html
 
-This is work in progress, for now please use the sfMelodyPlugin.
+* http://developer.yahoo.com/oauth/guide/about.html
+* http://developer.yahoo.com/oauth/guide/oauth-auth-flow.html
 
 ## Requirements
 * PHP 5.3.2+
 * Pecl OAuth extension
  * http://uk3.php.net/manual/en/book.oauth.php
  * http://pecl.php.net/package/oauth
-* sfDoctrineGuardPlugin - for now it doesn't work with Propel, but there are plans to make it work
+* sfDoctrineGuardPlugin - for now it doesn't work with Propel
 
 For now it supports OAuth 1.0 providers. So for it has been tested with:
+
 * Vimeo
 * Twitter
+* Facebook
 
-but I'm planning to implement all major providers, that is:
-* Yahoo
-* Google
-* LinkedIn
-* MySpace
-* and, of course, Facebook
+## New application example
 
-## New application example ##
-
-### Steps ###
+### Steps
 
 1.     mkdir cacophony
 2.     cd cacophony/
