@@ -184,7 +184,8 @@ class BasesfCacophonyConsumerActions extends sfActions
           array(
             'client_id'     => $config['providers'][$request->getParameter('provider')]['consumer_key'],
             'redirect_uri'  => $this->getContext()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for(sprintf('@sf_cacophony_callback?provider=%s',$request->getParameter('provider')),true) : 'oob',
-            'state'         => $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+            'state'         => $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))),
+            'scope'         => $config['providers'][$request->getParameter('provider')]['scope'] ?: null
           )
         )
       )

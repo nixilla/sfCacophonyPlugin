@@ -113,7 +113,7 @@ $browser->test()->like($response->getHttpHeader('Location'),'@'.$config['provide
 parse_str(parse_url(urldecode($response->getHttpHeader('Location')), PHP_URL_QUERY),$query_string);
 
 $browser->
-  info('Twitter Callback')->
+  info('Facebook Callback')->
   get(sprintf('/oauth/callback/facebook?code=1234&state=%s',$query_string['state']))->
 
   with('request')->begin()->
