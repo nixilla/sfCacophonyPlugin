@@ -24,6 +24,30 @@ $browser->
 $response = $browser->getResponse();
 
 $browser->test()->like($response->getHttpHeader('Location'),'@'.$config['providers']['twitter']['authorize_url'].'@','Connect redirects to correct URL');
+//$browser->info(parse_url($response->getHttpHeader('Location'), PHP_URL_QUERY));
+
+
+$browser->
+  info('Twitter Callback')->
+  get('/oauth/callback/twitter?oauth_token=1234&oauth_verifier=5678')->
+
+  with('request')->begin()->
+    isParameter('module', 'sfCacophonyConsumer')->
+    isParameter('action', 'callback')->
+    isParameter('provider', 'twitter')->
+    isParameter('oauth_token','1234')->
+    isParameter('oauth_verifier','5678')->
+  end()->
+
+  with('response')->begin()->
+    isStatusCode(302)->
+  end()->
+    
+  with('user')->begin()->
+    isFlash('error','Failed to retrieve access token: Invalid auth/bad request (got a 401, expected HTTP/1.1 20X or a redirect)')->
+  end()
+;
+
 
 $browser->
   info('Vimeo Connect')->
@@ -43,6 +67,29 @@ $browser->
 $response = $browser->getResponse();
 
 $browser->test()->like($response->getHttpHeader('Location'),'@'.$config['providers']['vimeo']['authorize_url'].'@','Connect redirects to correct URL');
+//$browser->info(parse_url($response->getHttpHeader('Location'), PHP_URL_QUERY));
+
+$browser->
+  info('Vimeo Callback')->
+  get('/oauth/callback/vimeo?oauth_token=1234&oauth_verifier=5678')->
+
+  with('request')->begin()->
+    isParameter('module', 'sfCacophonyConsumer')->
+    isParameter('action', 'callback')->
+    isParameter('provider', 'vimeo')->
+    isParameter('oauth_token','1234')->
+    isParameter('oauth_verifier','5678')->
+  end()->
+
+  with('response')->begin()->
+    isStatusCode(302)->
+  end()->
+    
+  with('user')->begin()->
+    isFlash('error','Failed to retrieve access token: Invalid auth/bad request (got a 401, expected HTTP/1.1 20X or a redirect)')->
+  end()
+;
+
 
 $browser->
   info('Facebook Connect')->
@@ -62,3 +109,26 @@ $browser->
 $response = $browser->getResponse();
 
 $browser->test()->like($response->getHttpHeader('Location'),'@'.$config['providers']['facebook']['authorize_url'].'@','Connect redirects to correct URL');
+//$browser->info(parse_url($response->getHttpHeader('Location'), PHP_URL_QUERY));
+parse_str(parse_url(urldecode($response->getHttpHeader('Location')), PHP_URL_QUERY),$query_string);
+
+$browser->
+  info('Twitter Callback')->
+  get(sprintf('/oauth/callback/facebook?code=1234&state=%s',$query_string['state']))->
+
+  with('request')->begin()->
+    isParameter('module', 'sfCacophonyConsumer')->
+    isParameter('action', 'callback')->
+    isParameter('provider', 'facebook')->
+    isParameter('code','1234')->
+    isParameter('state',$query_string['state'])->
+  end()->
+
+  with('response')->begin()->
+    isStatusCode(302)->
+  end()->
+    
+  with('user')->begin()->
+    isFlash('error','Failed to retrieve access token: ')->
+  end()
+;
