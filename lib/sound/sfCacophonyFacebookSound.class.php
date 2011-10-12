@@ -8,6 +8,12 @@
  */
 class sfCacophonyFacebookSound
 {
+  /**
+   * Calls Facebook me method
+   * 
+   * @param array $accessToken
+   * @return array 
+   */
   public static function getMe($accessToken)
   {
     $graph_url = sprintf('https://graph.facebook.com/me?access_token=%s',$accessToken['access_token']);
@@ -24,9 +30,24 @@ class sfCacophonyFacebookSound
     
   }
   
-  public static function call()
+  /**
+   * Calls Facebook graph methods
+   * 
+   * @param string $method
+   * @param array $accessToken
+   * @param null $oauth - not used
+   * @param array $params
+   * @return sting
+   */
+  public static function call($method, $accessToken = null, $oauth = null, $params = array())
   {
-    throw new Exception('This method has not been created yet - please wait while I\'m stil! working on it');
+    $resource = sprintf('%s/%s?', 'https://graph.facebook.com', $method);
+    
+    if($accessToken) $resource = sprintf('%s&%s', $resource, http_build_query(array('access_token' => $accessToken['access_token'])));
+    
+    if(count($params)) $resource = sprintf('%s&%s', $resource, http_build_query($params));
+    
+    if($oauth->fetch($resource))
+      return $oauth->getLastResponse();
   }
 }
-
