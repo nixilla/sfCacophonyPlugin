@@ -21,6 +21,10 @@ For now it supports OAuth 1.0 providers. So for it has been tested with:
 * Twitter
 * Facebook
 
+## A Sample application
+
+Please go to https://github.com/nixilla/Cacophony and download the Cacophony app. It uses sfCacophonyPlugin. It's a good example of how to use this plugin.
+
 ## New application example
 
 ### Steps
@@ -36,13 +40,13 @@ For now it supports OAuth 1.0 providers. So for it has been tested with:
 9.     svn export http://svn.symfony-project.com/plugins/sfDoctrineGuardPlugin/trunk/ sfDoctrineGuardPlugin
 10.    svn export https://svn.github.com/nixilla/sfCacophonyPlugin.git sfCacophonyPlugin
 11.    cd ../
-12.    vim config/databases.yml 
-13.    vim config/ProjectConfiguration.class.php 
+12.    vim config/databases.yml
+13.    vim config/ProjectConfiguration.class.php
 14.    vim config/doctrine/schema.yml
 15.    ./symfony doctrine:build --all
 16.    ./symfony generate:app frontend
-17.    vim web/frontend_dev.php 
-18.    vim apps/frontend/config/app.yml 
+17.    vim web/frontend_dev.php
+18.    vim apps/frontend/config/app.yml
 19.    vim apps/frontend/config/settings.yml
 20.    vim apps/frontend/config/filters.yml
 21.    vim apps/frontend/lib/myUser.class.php
@@ -53,12 +57,12 @@ Lines 1 to 11 - we're setting up standard symfony application called cacophony w
 
 Line 12 - configure your database connection settings
 
-Line 13 - enable 2 new plugins 
+Line 13 - enable 2 new plugins
 
     $this->enablePlugins('sfDoctrinePlugin','sfDoctrineGuardPlugin','sfCacophonyPlugin');
 
 Line 14 - modify sfGuardUser model to accept null for emails, as you won't get emails from some OAuth providers (optional)
-    
+
     sfGuardUser:
       columns:
         email_address:
@@ -73,7 +77,7 @@ Line 16 - create frontend app
 Line 17 - remove security check from front controller (optional)
 
 Line 18 - add your consumer_key and consumer secret
-    
+
     all:
       .settings:
         cacophony:
@@ -87,7 +91,7 @@ Line 18 - add your consumer_key and consumer secret
 
 Line 19 - enable modules and add sfGuard config
 
-    
+
     enabled_modules:        [default, sfGuardAuth, sfGuardRegister, sfCacophonyConsumer]
 
     login_module:           sfGuardAuth
@@ -98,7 +102,7 @@ Line 19 - enable modules and add sfGuard config
 
 Line 20 - add filter
 
-    
+
     rendering: ~
     security:  ~
 
@@ -110,8 +114,8 @@ Line 20 - add filter
     execution: ~
 
 Line 21 - change base class for myUser to sfGuardSecurityUser
-  
-    
+
+
     class myUser extends sfGuardSecurityUser
     {
     }
