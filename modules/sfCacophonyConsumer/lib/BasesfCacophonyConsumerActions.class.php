@@ -132,7 +132,7 @@ class BasesfCacophonyConsumerActions extends sfActions
        */
       $token = new Token();
       $token->fromArray($result['normalized']);
-      $token->fromArray($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
+      $token->setContent($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
       $token->setProvider($request->getParameter('provider'));
 
       $sf_guard_user = new sfGuardUser();
@@ -149,7 +149,9 @@ class BasesfCacophonyConsumerActions extends sfActions
       {
         if($token['provider'] == $request->getParameter('provider'))
         {
-          $token->fromArray($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
+          $accessToken = $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+          $token->setContent($accessToken);
+          if($accessToken['expires_at']) $token->setExpiresAt($accessToken['expires_at']);
           $token->save();
           break;
         }

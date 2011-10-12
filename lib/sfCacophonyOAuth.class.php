@@ -152,7 +152,7 @@ class sfCacophonyOAuth
     $response = file_get_contents($token_url); 
     $params = null;
     parse_str($response, $params);
-    $params['expires_at'] = time() + ($params['expires'] ?: 0);
+    $params['expires_at'] = date('c',time() + ($params['expires'] ?: 0));
     
     return $params;
   }
