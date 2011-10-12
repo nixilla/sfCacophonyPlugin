@@ -8,11 +8,18 @@
  */
 class sfCacophonyTwitterSound
 {
+  /**
+   * Calls users/show Twitter API method
+   * 
+   * @param array $accessToken
+   * @param OAuth $oauth
+   * @return array 
+   */
   public static function getMe($accessToken, OAuth $oauth)
   {
     $oauth->setToken($accessToken['oauth_token'],$accessToken['oauth_token_secret']);
     
-    if($oauth->fetch(sprintf('%s/users/show.json?user_id=%s', 'http://api.twitter.com',$accessToken['user_id'])))
+    if($oauth->fetch(sprintf('%s/users/show.json?user_id=%s', 'http://api.twitter.com/1',$accessToken['user_id'])))
     {
       $output['raw'] = json_decode($oauth->getLastResponse());
       
@@ -25,9 +32,25 @@ class sfCacophonyTwitterSound
     }
   }
   
-  public static function call()
+  /**
+   * Call Twitter API methods
+   * 
+   * @param string $method
+   * @param array $accessToken
+   * @param OAuth $oauth
+   * @param array $params
+   * @return string
+   */
+  public static function call($method, $accessToken = null, OAuth $oauth, $params = array())
   {
-    throw new Exception('This method has not been created yet - please wait while I\'m stil! working on it');
+    $oauth->setToken($accessToken['oauth_token'],$accessToken['oauth_token_secret']);
+    
+    $resource = sprintf('%s/%s.json?', 'http://api.twitter.com/1', $method);
+    
+    if(count($params)) $resource = sprintf('%s&%s', $resource, http_build_query($params));
+    
+    if($oauth->fetch($resource))
+      return $oauth->getLastResponse();
   }
 }
 
