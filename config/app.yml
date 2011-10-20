@@ -1,5 +1,5 @@
 all:
-  
+
   .settings:
     cacophony:
       plugin:
@@ -11,7 +11,7 @@ all:
           access_token_url: http://vimeo.com/oauth/access_token
         twitter:
           request_token_url: https://api.twitter.com/oauth/request_token
-          authorize_url: https://api.twitter.com/oauth/authorize
+          authorize_url: https://api.twitter.com/oauth/authenticate
           access_token_url: https://api.twitter.com/oauth/access_token
         linkedin:
           request_token_url: https://api.linkedin.com/uas/oauth/requestToken
@@ -25,4 +25,4 @@ all:
           request_token_url: ~
           authorize_url: http://www.facebook.com/dialog/oauth
           access_token_url: https://graph.facebook.com/oauth/access_token
-      
+
