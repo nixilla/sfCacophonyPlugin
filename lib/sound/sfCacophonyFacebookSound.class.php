@@ -23,6 +23,7 @@ class sfCacophonyFacebookSound
     $user['normalized']['username'] = $tmp->username;
     $user['normalized']['first_name'] = $tmp->first_name;
     $user['normalized']['last_name'] = $tmp->last_name;
+    if($tmp->email) $user['normalized']['email_address'] = $tmp->email;
     
     $user['raw'] = $tmp;
     
