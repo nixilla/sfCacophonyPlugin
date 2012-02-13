@@ -7,7 +7,38 @@
  * @author     Janusz Slota <janusz.slota@nixilla.com>
  */
 class sfCacophonyFacebookSound
-{
+{  
+  /**
+   * Get OAuth 2.0 access token
+   * 
+   * @param string $code
+   */
+  public static function getAccessToken($code)
+  {
+    $config = sfConfig::get('app_cacophony');
+    
+    sfApplicationConfiguration::getActive()->loadHelpers(array('Url'));
+    
+    $query_params = array(
+        'client_id'     => $config['providers']['facebook']['consumer_key'],
+        'redirect_uri'  => sfContext::getInstance()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for('@sf_cacophony_callback?provider=facebook', true) : 'oob',
+        'client_secret' => $config['providers']['facebook']['consumer_secret'],
+        'code'          => $code
+      );
+    
+    $token_url = sprintf('%s?%s',
+      $config['providers']['facebook']['access_token_url'],
+      http_build_query($query_params)
+    );
+    
+    $response = file_get_contents($token_url); 
+    $params = null;
+    parse_str($response, $params);
+    $params['expires_at'] = date('c',time() + ($params['expires'] ?: 0));
+    
+    return $params;
+  }
+  
   /**
    * Calls Facebook me method
    *
@@ -23,7 +54,7 @@ class sfCacophonyFacebookSound
     $user['normalized']['username'] = $tmp->username;
     $user['normalized']['first_name'] = $tmp->first_name;
     $user['normalized']['last_name'] = $tmp->last_name;
-    if(isset($tmp->email)) $user['normalized']['email_address'] = $tmp->email;
+    if (isset($tmp->email)) $user['normalized']['email_address'] = $tmp->email;
 
     $user['raw'] = $tmp;
 
@@ -44,11 +75,13 @@ class sfCacophonyFacebookSound
   {
     $resource = sprintf('%s/%s?', 'https://graph.facebook.com', $method);
 
-    if($accessToken) $resource = sprintf('%s&%s', $resource, http_build_query(array('access_token' => $accessToken['access_token'])));
+    if ($accessToken) $resource = sprintf('%s&%s', $resource, http_build_query(array('access_token' => $accessToken['access_token'])));
 
-    if(count($params)) $resource = sprintf('%s&%s', $resource, http_build_query($params));
+    if (count($params)) $resource = sprintf('%s&%s', $resource, http_build_query($params));
 
-    if($oauth->fetch($resource))
+    if ($oauth->fetch($resource))
+    {
       return $oauth->getLastResponse();
+    }
   }
 }

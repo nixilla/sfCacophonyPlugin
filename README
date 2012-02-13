@@ -15,11 +15,17 @@ Please go to links below for best explanation I've ever seen so far.
  * http://pecl.php.net/package/oauth
 * sfDoctrineGuardPlugin - for now it doesn't work with Propel
 
-For now it supports OAuth 1.0 providers. So for it has been tested with:
+So for it has been tested with:
+
+Oauth 1.0:
 
 * Vimeo
 * Twitter
+
+Oauth 2.0:
+
 * Facebook
+* Instagram
 
 ## A Sample application
 
@@ -76,7 +82,7 @@ Line 16 - create frontend app
 
 Line 17 - remove security check from front controller (optional)
 
-Line 18 - add your consumer_key and consumer secret
+Line 18 - add your consumer_key and consumer secret  (you must include the .settings: line)
 
     all:
       .settings:

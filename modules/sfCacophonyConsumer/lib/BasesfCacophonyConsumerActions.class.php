@@ -6,6 +6,7 @@
  * @package    sfCacophonyPlugin
  * @subpackage sfCacophonyConsumer
  * @author     Janusz Slota <janusz.slota@nixilla.com>
+ * @author     Jo Carter <jocarter@holler.co.uk>
  */
 class BasesfCacophonyConsumerActions extends sfActions
 {
@@ -18,23 +19,27 @@ class BasesfCacophonyConsumerActions extends sfActions
   {
     $this->forward404Unless($request->getParameter('provider'));
     
-    // facebook uses OAuth 2.0
-    if($request->getParameter('provider') == 'facebook')
-      $this->forward($request->getParameter('module'), 'facebook');
+    $config     = sfConfig::get('app_cacophony');
+    $provider   = $request->getParameter('provider');
     
-    $config = sfConfig::get('app_cacophony');
-    $this->forward404Unless(in_array($request->getParameter('provider'), array_keys($config['providers'])));
+    $this->forward404Unless(in_array($provider, array_keys($config['providers'])));
     
-    if( ! $this->getUser()->isAuthenticated())
+    // if OAuth 2.0
+    if (is_null($config['providers'][$provider]['request_token_url']))
     {
-      $result = sfCacophonyOAuth::getRequestToken($request->getParameter('provider'));
+      $this->forward($request->getParameter('module'), 'connect2');
+    }
+    
+    if (!$this->getUser()->isAuthenticated())
+    {
+      $result = sfCacophonyOAuth::getRequestToken($provider);
       
-      $this->getUser()->setAttribute('requestToken',$result,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+      $this->getUser()->setAttribute('requestToken', $result, sprintf('sfCacophonyPlugin/%s', $provider));
       
       $this->redirect(
         sprintf(
           '%s?%s',
-          $config['providers'][$request->getParameter('provider')]['authorize_url'],
+          $config['providers'][$provider]['authorize_url'],
           http_build_query(array('oauth_token' => $result['oauth_token']))
         )
       );
@@ -51,44 +56,49 @@ class BasesfCacophonyConsumerActions extends sfActions
   {
     $this->forward404Unless($request->getParameter('provider'));
     
-    if($request->getParameter('provider') == 'facebook')
-      $this->forward($request->getParameter('module'), 'facebookcallback');
+    $config     = sfConfig::get('app_cacophony');
+    $provider   = $request->getParameter('provider');
     
-    $config = sfConfig::get('app_cacophony');
-    $this->forward404Unless(in_array($request->getParameter('provider'), array_keys($config['providers'])));
+    $this->forward404Unless(in_array($provider, array_keys($config['providers'])));
     
-    if( ! $this->getUser()->isAuthenticated())
+    // if OAuth 2.0
+    if (is_null($config['providers'][$provider]['request_token_url']))
     {
-      $requestToken = $this->getUser()->getAttribute('requestToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+      $this->forward($request->getParameter('module'), 'callback2');
+    }
+    
+    if (!$this->getUser()->isAuthenticated())
+    {
+      $requestToken = $this->getUser()->getAttribute('requestToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
       
-      if($requestToken)
+      if ($requestToken)
       {
         try
         {
           $this->getUser()->setAttribute(
             'accessToken',
             sfCacophonyOAuth::getAccessToken(
-              $request->getParameter('provider'),
+              $provider,
               $request->getParameter('oauth_token'),
               $requestToken['oauth_token_secret'],
               $request->getParameter('oauth_verifier')
             ),
-            sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))
+            sprintf('sfCacophonyPlugin/%s', $provider)
           );
 
-          $this->getUser()->getAttributeHolder()->remove('requestToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+          $this->getUser()->getAttributeHolder()->remove('requestToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
 
           // add me to session
           $me = sfCacophonyOAuth::getMe(
-              $request->getParameter('provider'),
-              $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+              $provider,
+              $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider))
             );
 
-          $this->getUser()->setAttribute('me',$me['normalized'],sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+          $this->getUser()->setAttribute('me', $me['normalized'], sprintf('sfCacophonyPlugin/%s', $provider));
         }
-        catch(Exception $e)
+        catch (Exception $e)
         {
-          $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s',$e->getMessage()));
+          $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s', $e->getMessage()));
           $this->redirect('@homepage');
         }
       }
@@ -108,32 +118,29 @@ class BasesfCacophonyConsumerActions extends sfActions
    */
   public function executeRegister(sfRequest $request)
   {
+    $provider   = $request->getParameter('provider');
     
-    /**
-     * You might want to get user info from the provider like this
-     */
+    // You might want to get user info from the provider like this
     $result = sfCacophonyOAuth::getMe(
-      $request->getParameter('provider'),
-      $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+      $provider,
+      $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider))
     );
     
-    /**
-     * You might want to check if user exists like this:
-     */
-    $sf_guard_user = Doctrine_Core::getTable('sfGuardUser')->createQuery('u')
-      ->innerJoin('u.Tokens t')
-      ->where('t.providers_user_id = ?',$result['normalized']['providers_user_id'])
-      ->fetchOne();
+    // You might want to check if user exists like this:
+    $sf_guard_user = sfGuardUserTable::getInstance()->createQuery('u')
+                        ->innerJoin('u.Tokens t')
+                        ->where('t.providers_user_id = ?', $result['normalized']['providers_user_id'])
+                        ->fetchOne();
     
-    if( ! $sf_guard_user)
+    if (!$sf_guard_user)
     {
-      /**
-       * If user doesn't exist, you might want to add him/her, like this:
-       */
+      // If user doesn't exist, you might want to add him/her, like this:
       $token = new Token();
       $token->fromArray($result['normalized']);
-      $token->setContent($this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))));
-      $token->setProvider($request->getParameter('provider'));
+      $accessToken = $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
+      $token->setContent($accessToken);
+      if (isset($accessToken['expires_at'])) $token->setExpiresAt($accessToken['expires_at']);
+      $token->setProvider($provider);
 
       $sf_guard_user = new sfGuardUser();
       $sf_guard_user->fromArray($result['normalized']);
@@ -142,86 +149,104 @@ class BasesfCacophonyConsumerActions extends sfActions
     }
     else
     {
-      /**
-       * Or if the user exists, update it's token keys
-       */
-      foreach($sf_guard_user['Tokens'] as $token)
+      // Or if the user exists, update its token keys
+      foreach ($sf_guard_user['Tokens'] as $token)
       {
-        if($token['provider'] == $request->getParameter('provider'))
+        if ($token['provider'] == $provider)
         {
-          $accessToken = $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+          $accessToken = $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
           $token->setContent($accessToken);
-          if($accessToken['expires_at']) $token->setExpiresAt($accessToken['expires_at']);
+          if (isset($accessToken['expires_at'])) $token->setExpiresAt($accessToken['expires_at']);
           $token->save();
           break;
         }
       }
     }
     
-    /**
-     * At the end, you might want to log in user like this:
-     */
+    // At the end, you might want to log in user like this:
     $this->getUser()->signin($sf_guard_user);
     
-    /**
-     * and redirect to homepage, or wherever you want
-     */
+    // and redirect to homepage, or wherever you want
     $this->redirect('@homepage');
   }
   
   
-  public function executeFacebook(sfWebRequest $request)
+  /**
+   * OAuth 2.0 authorize
+   * 
+   * @param sfWebRequest $request
+   */
+  public function executeConnect2(sfWebRequest $request)
   {
-    $this->getUser()->setAttribute('state', md5(uniqid(rand(), true)) , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+    $config     = sfConfig::get('app_cacophony');
+    $provider   = $request->getParameter('provider');
     
-    $config = sfConfig::get('app_cacophony');
+    $this->getUser()->setAttribute('state', md5(uniqid(rand(), true)), sprintf('sfCacophonyPlugin/%s', $provider));
     
     $this->getContext()->getConfiguration()->loadHelpers('Url');
+    
+    $query_params = array(
+      'client_id'     => $config['providers'][$provider]['consumer_key'],
+      'redirect_uri'  => $this->getContext()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for(sprintf('@sf_cacophony_callback?provider=%s', $provider), true) : 'oob',
+    );
+    
+    if (isset($config['providers'][$provider]['response_type'])) $query_params['response_type'] = $config['providers'][$provider]['response_type'];
+    if (isset($config['providers'][$provider]['scope'])) $query_params['scope'] = $config['providers'][$provider]['scope'];
+    
+    if ('facebook' == $provider) 
+    {
+      $query_params['state'] = $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s', $provider));
+    }
     
     $this->redirect(
       sprintf(
         '%s?%s',
-        $config['providers'][$request->getParameter('provider')]['authorize_url'],
-        http_build_query(
-          array(
-            'client_id'     => $config['providers'][$request->getParameter('provider')]['consumer_key'],
-            'redirect_uri'  => $this->getContext()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for(sprintf('@sf_cacophony_callback?provider=%s',$request->getParameter('provider')),true) : 'oob',
-            'state'         => $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))),
-            'scope'         => $config['providers'][$request->getParameter('provider')]['scope'] ?: null
-          )
-        )
+        $config['providers'][$provider]['authorize_url'],
+        http_build_query($query_params)
       )
     );
   }
   
-  public function executeFacebookcallback(sfWebRequest $request)
+  /**
+   * Oath 2.0 callback
+   * 
+   * @param sfWebRequest $request
+   * @throws Exception
+   */
+  public function executeCallback2(sfWebRequest $request)
   {
-    // CSFR protection as adviced on the 
-    // http://developers.facebook.com/docs/authentication/
-    if($request->getParameter('state') != $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider'))))
-      throw new Exception('CSRF attack detected');
+    $provider = $request->getParameter('provider');
     
-    if( ! $this->getUser()->isAuthenticated())
+    if ($request->hasParameter('state'))
+    {
+      // CSFR protection as adviced on the http://developers.facebook.com/docs/authentication/
+      if ($request->getParameter('state') != $this->getUser()->getAttribute('state', null , sprintf('sfCacophonyPlugin/%s', $provider)))
+      {
+        throw new Exception('CSRF attack detected');
+      }  
+    }
+    
+    if (!$this->getUser()->isAuthenticated())
     {
       try
       {
         $this->getUser()->setAttribute(
-          'accessToken',
-          sfCacophonyOAuth::getFacebookToken($request->getParameter('code')),
-          'sfCacophonyPlugin/facebook'
-        );
+            'accessToken',
+            sfCacophonyOAuth::getAccessToken2($provider, $request->getParameter('code')),
+            sprintf('sfCacophonyPlugin/%s', $provider)
+          );
 
         // add me to session
         $me = sfCacophonyOAuth::getMe(
-          $request->getParameter('provider'),
-          $this->getUser()->getAttribute('accessToken',null,sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')))
+          $provider,
+          $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider))
         );
 
-        $this->getUser()->setAttribute('me',$me['normalized'],sprintf('sfCacophonyPlugin/%s',$request->getParameter('provider')));
+        $this->getUser()->setAttribute('me', $me['normalized'], sprintf('sfCacophonyPlugin/%s', $provider));
       }
-      catch(Exception $e)
+      catch (Exception $e)
       {
-        $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s',$e->getMessage()));
+        $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s', $e->getMessage()));
         $this->redirect('@homepage');
       }
     }
