@@ -129,7 +129,7 @@ class BasesfCacophonyConsumerActions extends sfActions
     // You might want to check if user exists like this:
     $sf_guard_user = sfGuardUserTable::getInstance()->createQuery('u')
                         ->innerJoin('u.Tokens t')
-                        ->where('t.providers_user_id = ?', $result['normalized']['providers_user_id'])
+                        ->where('t.providers_user_id = ? AND provider = ?', array($result['normalized']['providers_user_id'], $provider))
                         ->fetchOne();
     
     if (!$sf_guard_user)
