@@ -51,9 +51,9 @@ class sfCacophonyFacebookSound
     $tmp = json_decode(file_get_contents($graph_url));
 
     $user['normalized']['providers_user_id'] = $tmp->id;
-    $user['normalized']['username'] = $tmp->username;
     $user['normalized']['first_name'] = $tmp->first_name;
     $user['normalized']['last_name'] = $tmp->last_name;
+    if (isset($tmp->username)) $user['normalized']['username'] = $tmp->username;
     if (isset($tmp->email)) $user['normalized']['email_address'] = $tmp->email;
 
     $user['raw'] = $tmp;
