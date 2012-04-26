@@ -24,9 +24,12 @@ class sfCacophonyTwitterSound
       $output['raw'] = json_decode($oauth->getLastResponse());
       
       // Manual mapping
-      $output['normalized']['providers_user_id'] = $output['raw']->id;
-      $output['normalized']['first_name'] = $output['raw']->name;
-      $output['normalized']['username'] = $output['raw']->screen_name;
+      $name_parts = explode(' ', $output['raw']->name, 2);
+      
+      $output['normalized']['first_name']         = $name_parts[0];
+      $output['normalized']['last_name']          = @$name_parts[1];
+      $output['normalized']['providers_user_id']  = $output['raw']->id;
+      $output['normalized']['username']           = $output['raw']->screen_name;
       
       return $output;
     }

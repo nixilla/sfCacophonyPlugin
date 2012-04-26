@@ -9,6 +9,7 @@
  * @package    sfCacophonyPlugin
  * @subpackage sfCacophonyOAuth
  * @author     Janusz Slota <janusz.slota@nixilla.com>
+ * @author     Jo Carter <jocarter@holler.co.uk>
  */
 class sfCacophonyOAuth
 {
@@ -35,7 +36,7 @@ class sfCacophonyOAuth
     }
     catch (OAuthException $e)
     {
-      if(sfConfig::get('sf_logging_enabled')) sfContext::getInstance()->getLogger()->err($e->lastResponse);
+      if (sfConfig::get('sf_logging_enabled')) sfContext::getInstance()->getLogger()->err($e->lastResponse);
       return false;
     }
   }
@@ -55,7 +56,7 @@ class sfCacophonyOAuth
     $oauth = self::getInstance($provider);
     $oauth->setToken($oauth_token,$oauth_token_secret);
     
-    if(sfConfig::get('sf_logging_enabled')) $oauth->enableDebug();
+    if (sfConfig::get('sf_logging_enabled')) $oauth->enableDebug();
     
     try
     {
@@ -63,7 +64,7 @@ class sfCacophonyOAuth
     }
     catch (OAuthException $e)
     {
-      if(sfConfig::get('sf_logging_enabled'))
+      if (sfConfig::get('sf_logging_enabled'))
       {
         sfContext::getInstance()->getLogger()->err(sprintf('{OAuthException} %s',$e->lastResponse));
         sfContext::getInstance()->getLogger()->info(sprintf('{OAuthException} %s',print_r($oauth->debugInfo,true)));
@@ -84,9 +85,10 @@ class sfCacophonyOAuth
    */
   public static function getInstance($provider)
   {
-    if( ! $provider) throw new Exception('Missing provider information');
+    if (!$provider) throw new Exception('Missing provider information');
     
     $config = sfConfig::get('app_cacophony');
+    
     return new OAuth(
       $config['providers'][$provider]['consumer_key'],
       $config['providers'][$provider]['consumer_secret'],
@@ -133,27 +135,29 @@ class sfCacophonyOAuth
     );
   }
   
+  /**
+   * @deprecated Upgraded to include more oauth 2.0 implementations
+   */
   public static function getFacebookToken($code)
   {
-    $config = sfConfig::get('app_cacophony');
-    
-    sfApplicationConfiguration::getActive()->loadHelpers(array('Url'));
-    
-    $token_url = sprintf('%s?%s',
-      $config['providers']['facebook']['access_token_url'],
-      http_build_query(array(
-        'client_id'     => $config['providers']['facebook']['consumer_key'],
-        'redirect_uri'  => sfContext::getInstance()->getRouting()->hasRouteName('sf_cacophony_callback') ? url_for('@sf_cacophony_callback?provider=facebook',true) : 'oob',
-        'client_secret' => $config['providers']['facebook']['consumer_secret'],
-        'code'          => $code
-      ))
+    self::getAccessToken2('facebook', $code);
+  }
+  
+  /**
+   * Get OAuth 2.0 access token
+   * For now Facebook and Instagram have different implementations.
+   * When we have more than one using the same method, we can refactor
+   * 
+   * @param string $code
+   */
+  public static function getAccessToken2($provider, $code)
+  {
+    return call_user_func(
+      array(
+        sprintf('sfCacophony%sSound',  ucfirst($provider)),
+        'getAccessToken'),
+      $code,
+      self::getInstance($provider)
     );
-    
-    $response = file_get_contents($token_url); 
-    $params = null;
-    parse_str($response, $params);
-    $params['expires_at'] = date('c',time() + ($params['expires'] ?: 0));
-    
-    return $params;
   }
 }
