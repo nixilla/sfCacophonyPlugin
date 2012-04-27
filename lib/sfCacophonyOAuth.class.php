@@ -40,14 +40,17 @@ class sfCacophonyOAuth
       return false;
     }
   }
-  
+
   /**
    * Calls provider's access token service
    * and returns whatever it gets from it
-   * 
+   *
    * @param String $provider
    * @param String $oauth_token
-   * @param String $oauth_token_secret 
+   * @param String $oauth_token_secret
+   * @param $oauth_verifier
+   * @throws OAuthException
+   * @return array
    */
   public static function getAccessToken($provider,$oauth_token,$oauth_token_secret,$oauth_verifier)
   {
@@ -77,11 +80,12 @@ class sfCacophonyOAuth
   {
     
   }
-  
+
   /**
    *
    * @param string $provider
-   * @return OAuth 
+   * @throws Exception
+   * @return OAuth
    */
   public static function getInstance($provider)
   {
@@ -121,6 +125,7 @@ class sfCacophonyOAuth
    * @param string $provider
    * @param Array $accessToken
    * @param Array $params  - additional parameters required for Providers methods
+   * @return mixed
    */
   public static function call($method, $provider, $accessToken = null, $params = array())
   {
@@ -134,21 +139,25 @@ class sfCacophonyOAuth
       $params
     );
   }
-  
+
   /**
    * @deprecated Upgraded to include more oauth 2.0 implementations
+   * @param $code
+   * @return mixed
    */
   public static function getFacebookToken($code)
   {
-    self::getAccessToken2('facebook', $code);
+    return self::getAccessToken2('facebook', $code);
   }
-  
+
   /**
    * Get OAuth 2.0 access token
    * For now Facebook and Instagram have different implementations.
    * When we have more than one using the same method, we can refactor
-   * 
+   *
+   * @param $provider
    * @param string $code
+   * @return mixed
    */
   public static function getAccessToken2($provider, $code)
   {

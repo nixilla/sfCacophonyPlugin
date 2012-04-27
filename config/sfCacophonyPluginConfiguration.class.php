@@ -19,7 +19,12 @@ class sfCacophonyPluginConfiguration extends sfPluginConfiguration
     {
       $enabledModules = sfConfig::get('sf_enabled_modules', array());
 
-      foreach(array('sfCacophonyConsumer','sfCacophonyProvider') as $module)
+      if (sfConfig::get('sf_environment') == 'test')
+        $enabledModules[] = 'sfCacophonyMock';
+
+      sfConfig::set('sf_enabled_modules', $enabledModules);
+
+      foreach(array('sfCacophonyConsumer','sfCacophonyProvider','sfCacophonyMock') as $module)
       {
         if (in_array($module, $enabledModules))
         {

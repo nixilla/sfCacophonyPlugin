@@ -1,3 +1,13 @@
+test:
+  .settings:
+    cacophony:
+      providers:
+        facebook:
+          request_token_url:  ~
+          authorize_url:      /oauth/mock/facebook/dialog
+          access_token_url:   /oauth/mock/facebook/access_token
+
+
 all:
   .settings:
     cacophony:
