@@ -109,10 +109,10 @@ class sfCacophonyOAuth
    */
   public static function getMe($provider,$accessToken)
   {
+    $config = sfConfig::get('app_cacophony');
+
     return call_user_func(
-      array(
-        sprintf('sfCacophony%sSound',  ucfirst($provider)),
-        'getMe'),
+      array($config['providers'][$provider]['sound'], 'getMe'),
       $accessToken,
       self::getInstance($provider)
     );
@@ -129,10 +129,10 @@ class sfCacophonyOAuth
    */
   public static function call($method, $provider, $accessToken = null, $params = array())
   {
+    $config = sfConfig::get('app_cacophony');
+
     return call_user_func(
-      array(
-        sprintf('sfCacophony%sSound',  ucfirst($provider)),
-        'call'),
+      array($config['providers'][$provider]['sound'], 'call'),
       $method,
       $accessToken,
       self::getInstance($provider),
@@ -161,10 +161,10 @@ class sfCacophonyOAuth
    */
   public static function getAccessToken2($provider, $code)
   {
+    $config = sfConfig::get('app_cacophony');
+
     return call_user_func(
-      array(
-        sprintf('sfCacophony%sSound',  ucfirst($provider)),
-        'getAccessToken'),
+      array($config['providers'][$provider]['sound'], 'getAccessToken'),
       $code,
       self::getInstance($provider)
     );

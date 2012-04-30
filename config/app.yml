@@ -18,22 +18,27 @@ all:
           request_token_url:  http://vimeo.com/oauth/request_token
           authorize_url:      http://vimeo.com/oauth/authorize
           access_token_url:   http://vimeo.com/oauth/access_token
+          sound:              sfCacophonyVimeoSound
         twitter:
           request_token_url:  https://api.twitter.com/oauth/request_token
           authorize_url:      https://api.twitter.com/oauth/authenticate
           access_token_url:   https://api.twitter.com/oauth/access_token
+          sound:              sfCacophonyTwitterSound
         linkedin:
           request_token_url:  https://api.linkedin.com/uas/oauth/requestToken
           authorize_url:      https://www.linkedin.com/uas/oauth/authenticate
           access_token_url:   https://api.linkedin.com/uas/oauth/accessToken
+          sound:              sfCacophonyLinkedinSound
         yahoo:
           request_token_url:  https://api.login.yahoo.com/oauth/v2/get_request_token
           authorize_url:      https://api.login.yahoo.com/oauth/v2/request_auth
           access_token_url:   https://api.login.yahoo.com/oauth/v2/get_token
+          sound:              sfCacophonyYahooSound
         facebook:
           request_token_url:  ~
           authorize_url:      http://www.facebook.com/dialog/oauth
           access_token_url:   https://graph.facebook.com/oauth/access_token
+          sound:              sfCacophonyFacebookSound
         instagram:
           api_url:            https://api.instagram.com/v1
           request_token_url:  ~
@@ -42,3 +47,4 @@ all:
           response_type:      code
           access_token_params:
             grant_type:       authorization_code
+          sound:              sfCacophonyInstagramSound

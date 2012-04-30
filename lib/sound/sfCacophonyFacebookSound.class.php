@@ -46,11 +46,12 @@ class sfCacophonyFacebookSound
     
     return $params;
   }
-  
+
   /**
    * Calls Facebook me method
    *
    * @param array $accessToken
+   * @throws Exception
    * @return array
    */
   public static function getMe($accessToken)

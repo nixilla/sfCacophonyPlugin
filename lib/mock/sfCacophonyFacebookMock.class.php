@@ -41,7 +41,8 @@ class sfCacophonyFacebookMock
       "timezone":1,
       "locale":"en_GB",
       "verified":true,
-      "updated_time":"2012-01-30T13:46:07+0000"
+      "updated_time":"2012-01-30T13:46:07+0000",
+      "birthday":"06\/09\/1981"
     }');
   }
 }
