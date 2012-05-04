@@ -33,7 +33,7 @@ class sfCacophonyFacebookSound
     );
 
     if (sfConfig::get('sf_environment') != 'test')
-      $response = file_get_contents($token_url);
+      $response = self::fetch($token_url);
     else
       $response = sfCacophonyFacebookMock::getAccessToken($token_url);
 
@@ -59,7 +59,7 @@ class sfCacophonyFacebookSound
     $graph_url = sprintf('https://graph.facebook.com/me?access_token=%s',$accessToken['access_token']);
 
     if (sfConfig::get('sf_environment') != 'test')
-      $tmp = json_decode(file_get_contents($graph_url));
+      $tmp = json_decode(self::fetch($graph_url));
     else
       $tmp = sfCacophonyFacebookMock::getMe($graph_url);
 
@@ -75,6 +75,29 @@ class sfCacophonyFacebookSound
 
     return $user;
 
+  }
+
+  private static function fetch($url)
+  {
+    if(sfConfig::get('app_use_proxy',false))
+    {
+      $proxy = sfConfig::get('app_proxy');
+
+      $auth = base64_encode(sprintf('%s:%s', $proxy['user'], $proxy['pass']));
+
+      $aContext = array(
+	  'http' => array(
+	      'proxy' => sprintf('tcp://%s:%s', $proxy['host'], $proxy['port']),
+	      'request_fulluri' => true,
+	      'header' => "Proxy-Authorization: Basic $auth",
+	  ),
+      );
+      $cxContext = stream_context_create($aContext);
+
+      return file_get_contents($url, False, $cxContext);
+
+    }
+    else return file_get_contents($url);
   }
 
   /**
