@@ -225,16 +225,16 @@ class BasesfCacophonyConsumerActions extends sfActions
         throw new Exception('CSRF attack detected');
       }  
     }
-    
-    if (!$this->getUser()->isAuthenticated())
+
+    if ( ! $this->getUser()->isAuthenticated())
     {
       try
       {
         $this->getUser()->setAttribute(
-            'accessToken',
-            sfCacophonyOAuth::getAccessToken2($provider, $request->getParameter('code')),
-            sprintf('sfCacophonyPlugin/%s', $provider)
-          );
+          'accessToken',
+          sfCacophonyOAuth::getAccessToken2($provider, $request->getParameter('code')),
+          sprintf('sfCacophonyPlugin/%s', $provider)
+        );
 
         // add me to session
         $me = sfCacophonyOAuth::getMe(
@@ -246,8 +246,9 @@ class BasesfCacophonyConsumerActions extends sfActions
       }
       catch (Exception $e)
       {
-        $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s', $e->getMessage()));
-        $this->redirect('@homepage');
+//        $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s', $e->getMessage()));
+//        $this->redirect('@homepage');
+        throw $e;
       }
     }
     else $this->redirect('@homepage');
