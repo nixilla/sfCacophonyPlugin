@@ -10,3 +10,7 @@ Token:
       class: sfGuardUser
       onDelete: CASCADE
       foreignAlias: Tokens
+  options:
+    symfony:
+      form: false
+      filter: false

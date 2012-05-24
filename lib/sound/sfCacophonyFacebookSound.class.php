@@ -63,13 +63,14 @@ class sfCacophonyFacebookSound
     else
       $tmp = sfCacophonyFacebookMock::getMe($graph_url);
 
-    if( ! $tmp->id) throw new Exception('Unable to fetch /me');
+    if (!$tmp->id) throw new Exception('Unable to fetch /me');
 
-    $user['normalized']['providers_user_id'] = $tmp->id;
-    $user['normalized']['first_name'] = $tmp->first_name;
-    $user['normalized']['last_name'] = $tmp->last_name;
-    $user['normalized']['username'] = (isset($tmp->username) ? $tmp->username : 'facebook_'.$tmp->id);
-    if (isset($tmp->email)) $user['normalized']['email_address'] = $tmp->email;
+    $user['normalized']['providers_user_id']  = $tmp->id;
+    $user['normalized']['first_name']         = $tmp->first_name;
+    $user['normalized']['last_name']          = $tmp->last_name;
+    $user['normalized']['username']           = (isset($tmp->username) ? $tmp->username : 'facebook_'.$tmp->id);
+    if (isset($tmp->email))    $user['normalized']['email_address'] = $tmp->email;
+    if (isset($tmp->birthday)) $user['normalized']['birthday']      = date('Y-m-d', strtotime($tmp->birthday));
 
     $user['raw'] = $tmp;
 
