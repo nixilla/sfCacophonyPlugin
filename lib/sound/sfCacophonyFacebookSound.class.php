@@ -7,11 +7,12 @@
  * @author     Janusz Slota <janusz.slota@nixilla.com>
  */
 class sfCacophonyFacebookSound
-{  
+{
   /**
    * Get OAuth 2.0 access token
-   * 
+   *
    * @param string $code
+   * @throws Exception
    * @return array|null
    */
   public static function getAccessToken($code)
@@ -113,6 +114,9 @@ class sfCacophonyFacebookSound
   public static function call($method, $accessToken = null, $oauth = null, $params = array())
   {
     $graph_url = sprintf('https://graph.facebook.com/%s?access_token=%s',$method, $accessToken['access_token']);
+
+    if(count($params))
+      $graph_url = sprintf('%s&%s', $graph_url, http_build_query($params));
 
     if (sfConfig::get('sf_environment') != 'test')
       return json_decode(self::fetch($graph_url));
