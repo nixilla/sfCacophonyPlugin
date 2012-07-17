@@ -112,15 +112,11 @@ class sfCacophonyFacebookSound
    */
   public static function call($method, $accessToken = null, $oauth = null, $params = array())
   {
-    $resource = sprintf('%s/%s?', 'https://graph.facebook.com', $method);
+    $graph_url = sprintf('https://graph.facebook.com/%s?access_token=%s',$method, $accessToken['access_token']);
 
-    if ($accessToken) $resource = sprintf('%s&%s', $resource, http_build_query(array('access_token' => $accessToken['access_token'])));
-
-    if (count($params)) $resource = sprintf('%s&%s', $resource, http_build_query($params));
-
-    if ($oauth->fetch($resource))
-    {
-      return $oauth->getLastResponse();
-    }
+    if (sfConfig::get('sf_environment') != 'test')
+      return json_decode(self::fetch($graph_url));
+    else
+      return sfCacophonyFacebookMock::call($graph_url);
   }
 }
