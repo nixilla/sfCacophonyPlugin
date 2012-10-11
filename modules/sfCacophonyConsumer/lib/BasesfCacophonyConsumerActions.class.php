@@ -30,7 +30,7 @@ class BasesfCacophonyConsumerActions extends sfActions
       $this->forward($request->getParameter('module'), 'connect2');
     }
     
-    if (!$this->getUser()->isAuthenticated())
+    if (!$this->getUser()->isAuthenticated() || $config['plugin']['allow_multiple_tokens'])
     {
       $result = sfCacophonyOAuth::getRequestToken($provider);
       
@@ -67,7 +67,7 @@ class BasesfCacophonyConsumerActions extends sfActions
       $this->forward($request->getParameter('module'), 'callback2');
     }
     
-    if (!$this->getUser()->isAuthenticated())
+    if (!$this->getUser()->isAuthenticated() || $config['plugin']['allow_multiple_tokens'])
     {
       $requestToken = $this->getUser()->getAttribute('requestToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
       
@@ -127,14 +127,21 @@ class BasesfCacophonyConsumerActions extends sfActions
     );
     
     // You might want to check if user exists like this:
-    $sf_guard_user = sfGuardUserTable::getInstance()->createQuery('u')
+    if ($this->getUser()->isAuthenticated())
+    {
+      $sf_guard_user = $this->getUser()->getGuardUser();
+    }
+    else 
+    {
+      $sf_guard_user = sfGuardUserTable::getInstance()->createQuery('u')
                         ->innerJoin('u.Tokens t')
                         ->where('t.providers_user_id = ? AND provider = ?', array($result['normalized']['providers_user_id'], $provider))
                         ->fetchOne();
+    }
     
     if (!$sf_guard_user)
     {
-      // If user doesn't exist, you might want to add him/her, like this:
+      // If user doesn't exist, you might want to add them, like this:
       $token = new Token();
       $token->fromArray($result['normalized']);
       $accessToken = $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
@@ -149,7 +156,9 @@ class BasesfCacophonyConsumerActions extends sfActions
     }
     else
     {
-      // Or if the user exists, update its token keys
+      $hasToken = false;
+      
+      // Or if the user exists, update it's tokens
       foreach ($sf_guard_user['Tokens'] as $token)
       {
         if ($token['provider'] == $provider)
@@ -158,8 +167,22 @@ class BasesfCacophonyConsumerActions extends sfActions
           $token->setContent($accessToken);
           if (isset($accessToken['expires_at'])) $token->setExpiresAt($accessToken['expires_at']);
           $token->save();
+          $hasToken = true;
           break;
         }
+      }
+      
+      // If it's a new token - add it
+      if (!$hasToken)
+      {
+        $token = new Token();
+        $token->fromArray($result['normalized']);
+        $accessToken = $this->getUser()->getAttribute('accessToken', null, sprintf('sfCacophonyPlugin/%s', $provider));
+        $token->setContent($accessToken);
+        if (isset($accessToken['expires_at'])) $token->setExpiresAt($accessToken['expires_at']);
+        $token->setProvider($provider);
+        $sf_guard_user['Tokens']->add($token);
+        $sf_guard_user->save();
       }
     }
     
@@ -215,6 +238,7 @@ class BasesfCacophonyConsumerActions extends sfActions
    */
   public function executeCallback2(sfWebRequest $request)
   {
+    $config     = sfConfig::get('app_cacophony');
     $provider = $request->getParameter('provider');
     
     if ($request->hasParameter('state'))
@@ -226,7 +250,7 @@ class BasesfCacophonyConsumerActions extends sfActions
       }  
     }
 
-    if ( ! $this->getUser()->isAuthenticated())
+    if (!$this->getUser()->isAuthenticated() || $config['plugin']['allow_multiple_tokens'])
     {
       try
       {
@@ -246,8 +270,8 @@ class BasesfCacophonyConsumerActions extends sfActions
       }
       catch (Exception $e)
       {
-//        $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s', $e->getMessage()));
-//        $this->redirect('@homepage');
+        // $this->getUser()->setFlash('error', sprintf('Failed to retrieve access token: %s', $e->getMessage()));
+        // $this->redirect('@homepage');
         throw $e;
       }
     }

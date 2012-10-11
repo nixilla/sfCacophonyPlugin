@@ -12,6 +12,7 @@ all:
   .settings:
     cacophony:
       plugin:
+        allow_multiple_tokens: false   # One account can have multiple ways of logging in (e.g. Twitter & Facebook tokens)
         routes_register:      true
       providers:
         vimeo:
