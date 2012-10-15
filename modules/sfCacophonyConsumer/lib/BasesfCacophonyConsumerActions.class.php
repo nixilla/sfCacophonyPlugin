@@ -154,7 +154,7 @@ class BasesfCacophonyConsumerActions extends sfActions
       $sf_guard_user['Tokens']->add($token);
       $sf_guard_user->save();
       
-      $this->postCreateHook($sf_guard_user);
+      $this->postCreateHook($sf_guard_user, $token);
     }
     else
     {
@@ -186,7 +186,7 @@ class BasesfCacophonyConsumerActions extends sfActions
         $sf_guard_user['Tokens']->add($token);
         $sf_guard_user->save();
         
-        $this->postUpdateHook($sf_guard_user);
+        $this->postUpdateHook($sf_guard_user, $token);
       }
     }
     
@@ -288,8 +288,9 @@ class BasesfCacophonyConsumerActions extends sfActions
    * Function to hook into on local project so don't have to rewrite entire register functionality
    * 
    * @param sfGuardUser $sf_guard_user
+   * @param Token $token
    */
-  public function postCreateHook(sfGuardUser $sf_guard_user)
+  public function postCreateHook($sf_guard_user, $token)
   {
     // Implement locally
   }
@@ -298,8 +299,9 @@ class BasesfCacophonyConsumerActions extends sfActions
    * Function to hook into on local project so don't have to rewrite entire register functionality
    * 
    * @param sfGuardUser $sf_guard_user
+   * @param Token $token
    */
-  public function postUpdateHook(sfGuardUser $sf_guard_user)
+  public function postUpdateHook($sf_guard_user, $token)
   {
     // Implement locally
   }
