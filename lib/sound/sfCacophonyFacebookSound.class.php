@@ -68,10 +68,15 @@ class sfCacophonyFacebookSound
     $user['normalized']['providers_user_id']  = $tmp->id;
     $user['normalized']['first_name']         = $tmp->first_name;
     $user['normalized']['last_name']          = $tmp->last_name;
-    $user['normalized']['username']           = (isset($tmp->username) ? $tmp->username : 'facebook_'.$tmp->id);
-    if (isset($tmp->email))    $user['normalized']['email_address'] = $tmp->email;
-    if (isset($tmp->birthday)) $user['normalized']['birthday']      = date('Y-m-d', strtotime($tmp->birthday));
+    
+    if (isset($tmp->email)) $user['normalized']['email_address'] = $tmp->email;
+    if ((!isset($user['normalized']['email_address']) || empty($user['normalized']['email_address'])) && isset($tmp->username)) {
+      $user['normalized']['email_address'] = $tmp->username.'@facebook.com';
+    }
+    if (isset($tmp->birthday)) $user['normalized']['birthday'] = date('Y-m-d', strtotime($tmp->birthday));
 
+    $user['normalized']['username']           = (isset($tmp->username) ? $tmp->username : 'facebook_'.$tmp->id);
+    
     $user['raw'] = $tmp;
 
     return $user;
