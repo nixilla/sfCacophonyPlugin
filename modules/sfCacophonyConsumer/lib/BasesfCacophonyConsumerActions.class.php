@@ -56,6 +56,11 @@ class BasesfCacophonyConsumerActions extends sfActions
   {
     $this->forward404Unless($request->getParameter('provider'));
     
+    // user has denied auth'ing the app, don't continue
+    if ($request->hasParameter('error')) {
+      $this->redirect('@homepage');
+    }
+    
     $config     = sfConfig::get('app_cacophony');
     $provider   = $request->getParameter('provider');
     
