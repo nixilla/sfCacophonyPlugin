@@ -30,6 +30,7 @@ class sfCacophonyTwitterSound
       $output['normalized']['last_name']          = @$name_parts[1];
       $output['normalized']['providers_user_id']  = $output['raw']->id;
       $output['normalized']['username']           = $output['raw']->screen_name;
+      $output['normalized']['profile_image_url']  = $output['raw']->profile_image_url;
       
       return $output;
     }
