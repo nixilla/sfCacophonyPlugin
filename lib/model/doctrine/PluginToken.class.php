@@ -11,5 +11,14 @@
  */
 abstract class PluginToken extends BaseToken
 {
-  
+ /**
+  * Is token expired
+  * 
+  * @return boolean
+  */
+  public function isExpired()
+  {
+    if ($this->getDateTimeObject('expires_at')->getTimestamp() < time()) return true;
+    else return false;
+  }
 }

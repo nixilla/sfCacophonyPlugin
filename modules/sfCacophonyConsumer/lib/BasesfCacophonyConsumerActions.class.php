@@ -56,6 +56,11 @@ class BasesfCacophonyConsumerActions extends sfActions
   {
     $this->forward404Unless($request->getParameter('provider'));
     
+    // user has denied auth'ing the app, don't continue
+    if ($request->hasParameter('error')) {
+      $this->redirect('@homepage');
+    }
+    
     $config     = sfConfig::get('app_cacophony');
     $provider   = $request->getParameter('provider');
     
@@ -153,6 +158,8 @@ class BasesfCacophonyConsumerActions extends sfActions
       $sf_guard_user->fromArray($result['normalized']);
       $sf_guard_user['Tokens']->add($token);
       $sf_guard_user->save();
+      
+      $this->postCreateHook($sf_guard_user, $token);
     }
     else
     {
@@ -183,6 +190,8 @@ class BasesfCacophonyConsumerActions extends sfActions
         $token->setProvider($provider);
         $sf_guard_user['Tokens']->add($token);
         $sf_guard_user->save();
+        
+        $this->postUpdateHook($sf_guard_user, $token);
       }
     }
     
@@ -278,5 +287,27 @@ class BasesfCacophonyConsumerActions extends sfActions
     else $this->redirect('@homepage');
     
     return sfView::NONE;
+  }
+  
+  /**
+   * Function to hook into on local project so don't have to rewrite entire register functionality
+   * 
+   * @param sfGuardUser $sf_guard_user
+   * @param Token $token
+   */
+  public function postCreateHook($sf_guard_user, $token)
+  {
+    // Implement locally
+  }
+  
+  /**
+   * Function to hook into on local project so don't have to rewrite entire register functionality
+   * 
+   * @param sfGuardUser $sf_guard_user
+   * @param Token $token
+   */
+  public function postUpdateHook($sf_guard_user, $token)
+  {
+    // Implement locally
   }
 }
