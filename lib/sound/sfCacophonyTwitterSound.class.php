@@ -19,7 +19,7 @@ class sfCacophonyTwitterSound
   {
     $oauth->setToken($accessToken['oauth_token'],$accessToken['oauth_token_secret']);
     
-    if ($oauth->fetch(sprintf('%s/users/show.json?user_id=%s', 'https://api.twitter.com/1.1', $accessToken['user_id'])), null, OAUTH_HTTP_METHOD_GET)
+    if ($oauth->fetch(sprintf('%s/users/show.json?user_id=%s', 'https://api.twitter.com/1.1', $accessToken['user_id']), null, OAUTH_HTTP_METHOD_GET))
     {
       $output['raw'] = json_decode($oauth->getLastResponse());
       
